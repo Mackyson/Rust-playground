@@ -13,15 +13,18 @@ fn main() {
     }
     let (re, path) = parse_args(&args);
     let file = get_file(&path);
-    if let Err(e) = file {
-        println!("could not open the file: {}", e);
-        process::exit(1);
-    } else {
-        let err = run(re, file.unwrap());
-        if let Err(e) = err {
-            panic!("{e}");
-        } else {
-            println!("done");
+    match file {
+        Err(e) => {
+            println!("could not open the file: {}", e);
+            process::exit(1);
+        }
+        Ok(file) => {
+            let err = run(re, file);
+            if let Err(e) = err {
+                panic!("{e}");
+            } else {
+                println!("done");
+            }
         }
     }
 }
