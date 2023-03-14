@@ -5,7 +5,7 @@ fn main() {
 
     let err = minigrep::run(&args);
     if let Err(e) = err {
-        println!("{e}");
+        eprintln!("{e}");
         process::exit(1);
     } else {
         println!("done");
