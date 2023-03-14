@@ -5,6 +5,33 @@ use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
 use std::path::Path;
 use std::process;
 use tempfile::tempfile;
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_search() -> Result<(), Box<dyn Error>> {
+        let re1 = Regex::new(r"safe").unwrap();
+        let re2 = Regex::new(r"\d").unwrap();
+        let mut file = tempfile()?;
+        writeln!(
+            file,
+            "\
+Rust:
+safe, fast, productive.
+Pick 3."
+        )?;
+        file.seek(SeekFrom::Start(0))?;
+        assert_eq!(
+            file_search(&re1, &file).unwrap(),
+            vec!["safe, fast, productive."]
+        );
+        file.seek(SeekFrom::Start(0))?;
+        assert_eq!(file_search(&re2, &file).unwrap(), vec!["Pick 3."]);
+        drop(file);
+        Ok(())
+    }
+}
 pub fn run(args: &Vec<String>) -> Result<(), Box<dyn Error>> {
     if args.len() != 3 {
         println!("Usage: minigrep <pattern> <path_to_file>");
