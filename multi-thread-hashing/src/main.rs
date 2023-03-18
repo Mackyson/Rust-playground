@@ -8,7 +8,7 @@ use std::time::Instant;
 use std::{process, thread};
 type Digest = String;
 
-static mut THREAD_NUM: u8 = 4;
+static mut THREAD_NUM: u8 = 8;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 2 {
@@ -23,28 +23,28 @@ fn main() {
             process::exit(1);
         }
         Ok(file) => {
-            // let start = Instant::now();
-            // single_threaded_hash(&file);
-            // let duration_single = start.elapsed();
-            // println!("single: {:?}", duration_single);
+            let start = Instant::now();
+            single_threaded_hash(&file);
+            let duration_single = start.elapsed();
+            println!("single: {:?}", duration_single);
             
-            // if let Err(e) = file.seek(SeekFrom::Start(0)) {
-            //     panic!("{}", e)
-            // };
+            if let Err(e) = file.seek(SeekFrom::Start(0)) {
+                panic!("{}", e)
+            };
 
             let start = Instant::now();
             multi_threaded_hash_std(&file);
             let duration_multi_std = start.elapsed();
             println!("multi-std: {:?}", duration_multi_std);
 
-            // if let Err(e) = file.seek(SeekFrom::Start(0)) {
-            //     panic!("{}", e)
-            // };
+            if let Err(e) = file.seek(SeekFrom::Start(0)) {
+                panic!("{}", e)
+            };
 
-            // let start = Instant::now();
-            // multi_threaded_hash_parking_lot(&file);
-            // let duration_multi_parking_lot = start.elapsed();
-            // println!("multi-parking-lot: {:?}", duration_multi_parking_lot);
+            let start = Instant::now();
+            multi_threaded_hash_parking_lot(&file);
+            let duration_multi_parking_lot = start.elapsed();
+            println!("multi-parking-lot: {:?}", duration_multi_parking_lot);
 
         }
     }
@@ -73,10 +73,11 @@ fn multi_threaded_hash_std(file: &File) {
                     break;
                     // This index checking incurs more or less performance degradation by add some CPU operations in every loop.
                 }
+                let digest = (count, sha256::digest(lines.deref()[count as usize].clone()));
                 results
                     .lock()
                     .unwrap()
-                    .push((count, sha256::digest(lines.deref()[count as usize].clone())));
+                    .push(digest);
             }
         });
         threads.push(thread);
@@ -114,9 +115,10 @@ fn multi_threaded_hash_parking_lot(file: &File) {
                     break;
                     // This index checking incurs more or less performance degradation by add some CPU operations in every loop.
                 }
+                let digest = (count, sha256::digest(lines.deref()[count as usize].clone()));
                 results
                     .lock()
-                    .push((count, sha256::digest(lines.deref()[count as usize].clone())));
+                    .push(digest);
             }
         });
         threads.push(thread);

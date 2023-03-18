@@ -1,3 +1,16 @@
-single: 73.699975ms
-multi-std: 207.908511ms
-multi-parking-lot: 236.57254ms
+-- debug build (# of threads = 4)--
+single: 728.802192ms
+multi-std: 226.689166ms
+multi-parking-lot: 227.863366ms
+
+-- release build (# of threads = 4)--
+single: 53.362798ms
+multi-std: 31.540399ms
+multi-parking-lot: 23.436999ms
+
+-- release build (# of threads = 8)--
+single: 52.9706ms
+multi-std: 32.7809ms
+multi-parking-lot: 52.379ms
+
+// コンテンションが高すぎてほぼスケールしてない？
